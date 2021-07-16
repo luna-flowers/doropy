@@ -35,11 +35,16 @@ def tui():
     term = Terminal()
     timer = set_timer()
 
-    with term.hidden_cursor(), term.fullscreen():
+    with term.hidden_cursor(), term.fullscreen(), term.cbreak():
+        keypress = ''
         while datetime.now() < timer:
+            keypress = term.inkey(timeout=0.01)
             countdown = timer - datetime.now()
             time_remaining = ':'.join(
                 str(countdown).split(':')[1:3]).split('.', maxsplit=1)[0]
+
+            if keypress.lower() == 'q':
+                sys.exit(0)
 
             print(term.home +
                   term.light_slate_grey_on_black +
@@ -47,7 +52,7 @@ def tui():
                   term.move_y(term.height // 2))
 
             print(term.center(time_remaining))
-            time.sleep(1)
+            time.sleep(0.5)
 
 
 def main():
