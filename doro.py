@@ -25,21 +25,15 @@ def get_args():
     return parser.parse_args()
 
 
-def main():
-    """handle arguments and run"""
-    args = get_args()
+def set_timer():
+    """timer logic: returns total timer length; default 25 minutes"""
+    return datetime.now() + timedelta(minutes=25)
 
-    timer = datetime.now() + timedelta(minutes=25)
 
-    if args.show_timer:
-        countdown = timer - datetime.now()
-        time_remaining = ':'.join(str(countdown)
-                                  .split(':')[1:3]).split('.', maxsplit=1)[0]
-
-        print(time_remaining)
-        sys.exit(0)
-
+def tui():
+    """tui display logic"""
     term = Terminal()
+    timer = set_timer()
 
     with term.hidden_cursor(), term.fullscreen():
         while datetime.now() < timer:
@@ -54,6 +48,22 @@ def main():
 
             print(term.center(time_remaining))
             time.sleep(1)
+
+
+def main():
+    """handle arguments and run"""
+    args = get_args()
+    timer = set_timer()
+
+    if args.show_timer:
+        countdown = timer - datetime.now()
+        time_remaining = ':'.join(str(countdown)
+                                  .split(':')[1:3]).split('.', maxsplit=1)[0]
+
+        print(time_remaining)
+        sys.exit(0)
+
+    tui()
 
 
 if __name__ == '__main__':
