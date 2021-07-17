@@ -5,6 +5,14 @@ Author: Lunamare
 Simple pomodoro timer
 """
 
+"""
+TODO:
+- break timer (use time_remaining logic to start a new timer on 00:00)
+- progress bar
+- add/subtract second on j/k & minute on J/K
+- add/subtract 5 {second,minute} on {j/k,J/K}
+"""
+
 import argparse
 import time
 import sys
@@ -34,17 +42,31 @@ def tui():
     """tui display logic"""
     term = Terminal()
     timer = set_timer()
+    state = 'play'
+    time_remaining = ''
+    countdown = timer - datetime.now()
 
     with term.hidden_cursor(), term.fullscreen(), term.cbreak():
         keypress = ''
-        while datetime.now() < timer:
+
+        while time_remaining != '00:00':
             keypress = term.inkey(timeout=0.01)
-            countdown = timer - datetime.now()
             time_remaining = ':'.join(
                 str(countdown).split(':')[1:3]).split('.', maxsplit=1)[0]
 
             if keypress.lower() == 'q':
                 sys.exit(0)
+
+            if keypress.lower() == 'p':
+                if state == 'play':
+                    state = 'pause'
+                elif state == 'pause':
+                    state = 'play'
+                else:
+                    sys.exit(1)
+
+            if state == 'play':
+                countdown = countdown - timedelta(seconds=1)
 
             print(term.home +
                   term.light_slate_grey_on_black +
@@ -52,7 +74,8 @@ def tui():
                   term.move_y(term.height // 2))
 
             print(term.center(time_remaining))
-            time.sleep(0.5)
+
+            time.sleep(1)
 
 
 def main():
